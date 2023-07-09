@@ -1,7 +1,5 @@
 name: gradle release
 
-# ketikai
-
 on:
   push:
     branches:
@@ -14,8 +12,7 @@ on:
 
 jobs:
   release:
-#     if: github.event_name == 'push' || github.event.pull_request.merged == true
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.event.pull_request.merged == false
 
     runs-on: ubuntu-latest
 
@@ -79,4 +76,4 @@ jobs:
           generateReleaseNotes: true
           tag: ${{ env.project_version }}
           artifacts: "build/libs/*"
-          token: ${{ secrets.RELEASE_TOKEN }}
+          token: ${{ secrets.WORKFLOW }}
