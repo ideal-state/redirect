@@ -31,6 +31,15 @@ tasks.shadowJar {
     }
 }
 
+repositories {
+    mavenLocal()
+    maven {
+        name = "aliyun-public"
+        url = uri("https://maven.aliyun.com/repository/public")
+    }
+    mavenCentral()
+}
+
 dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
 }
