@@ -61,7 +61,7 @@ public class DatagramServer {
             InetSocketAddress realClient;
             while (!Thread.interrupted()) {
                 try {
-                    TimeUnit.NANOSECONDS.sleep(10L);
+                    TimeUnit.NANOSECONDS.sleep(1000L);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -112,7 +112,7 @@ public class DatagramServer {
             Packet packet;
             while (!Thread.interrupted()) {
                 try {
-                    TimeUnit.NANOSECONDS.sleep(10L);
+                    TimeUnit.NANOSECONDS.sleep(1000L);
                 } catch (InterruptedException e) {
                     break;
                 }

@@ -103,7 +103,7 @@ public class DatagramClientPool {
             InetSocketAddress realServer0;
             while (!Thread.interrupted()) {
                 try {
-                    TimeUnit.NANOSECONDS.sleep(10L);
+                    TimeUnit.NANOSECONDS.sleep(1000L);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -161,7 +161,7 @@ public class DatagramClientPool {
             DatagramClient client;
             while (!Thread.interrupted()) {
                 try {
-                    TimeUnit.NANOSECONDS.sleep(10L);
+                    TimeUnit.NANOSECONDS.sleep(1000L);
                 } catch (InterruptedException e) {
                     break;
                 }
