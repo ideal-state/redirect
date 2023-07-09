@@ -5,7 +5,7 @@
 
 ### 在哪下载 ?
 
-> 请前往 `https://github.com/ideal-state/hyper-framework/releases`
+> 前往 [releases](https://github.com/ideal-state/hyper-framework/releases) 页
 
 
 ### 如何使用
@@ -31,4 +31,5 @@ cd ./redirect
 ```shell
 ./gradlew shadowJar
 ```
-> 等待构建完成，在 ./build/libs 下会生成 jar 包和 windows 的启动脚本
+
+> 等待构建完成，在 ./build/libs 下会生成包含 jar 包和各平台的启动脚本的 zip 存档

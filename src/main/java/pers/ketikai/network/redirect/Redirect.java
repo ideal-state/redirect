@@ -105,6 +105,7 @@ public final class Redirect {
     }
 
     private static void flushdns() {
+        log.info("flushdns... wait for 5s");
         final String flushCmd = "cmd /c ipconfig /flushdns";
         try {
             final Process process = Runtime.getRuntime().exec(flushCmd);
@@ -120,6 +121,7 @@ public final class Redirect {
     }
 
     private static void updateDevice(String deviceName, InetAddress inetAddress) {
+        log.info("update device... wait for 5s");
         try {
             final String flushCmd;
             if (inetAddress instanceof Inet4Address) {

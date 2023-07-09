@@ -1,10 +1,12 @@
+import java.nio.charset.Charset
+
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "pers.ketikai.network"
-version = "1.0.0"
+version = "1.0.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -12,16 +14,44 @@ java {
 }
 
 tasks.compileJava {
+    dependsOn(tasks.clean)
     options.encoding = "utf-8"
 }
 
-tasks.create<Copy>("copy-start-script") {
-    from("${rootDir}/start-redirect.bat")
+tasks.create("process-scripts") {
+    doFirst {
+        val reg = Regex(
+            "JAR\\_FILE\\=\\./redirect\\-[0-9]{1,}\\.[0-9]{1,}\\.[0-9]{1,}(-SNAPSHOT){0,1}\\.jar"
+        )
+        val GBK = Charset.forName("GBK")
+        val text = "JAR_FILE=./redirect-${rootProject.version}.jar"
+        var script = file("${rootDir}/scripts/start-redirect.bat")
+        var content = script.readText(GBK)
+        reg.find(content)?.apply {
+            script.writeText(script.readText(GBK).replace(this.value, text), GBK)
+        }
+        script = file("${rootDir}/scripts/start-redirect.sh")
+        content = script.readText(Charsets.UTF_8)
+        reg.find(content)?.apply {
+            script.writeText(script.readText(Charsets.UTF_8).replace(this.value, text), Charsets.UTF_8)
+        }
+    }
+}
+
+tasks.create<Copy>("copy-zip-to-libs") {
+    from("${buildDir}/distributions/${rootProject.name}-${rootProject.version}.zip")
     into("${buildDir}/libs")
 }
 
+tasks.create<Zip>("copy-to-zip") {
+    finalizedBy(tasks.named("copy-zip-to-libs"))
+    from("${buildDir}/libs")
+    from("${rootDir}/scripts")
+}
+
 tasks.shadowJar {
-    dependsOn(tasks.named("copy-start-script"))
+    dependsOn("process-scripts")
+    finalizedBy(tasks.named("copy-to-zip"))
     archiveClassifier.set("")
     manifest {
         attributes(
