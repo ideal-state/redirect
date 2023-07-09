@@ -1,4 +1,5 @@
 @echo off
+chcp 65001
 
 rem 数据包重定向工具
 rem MIT License
@@ -31,7 +32,8 @@ java -jar -Xms%MAX_RAM% -Xmx%MAX_RAM% ^
 -XX:MaxRAMPercentage=45 -XX:InitialRAMPercentage=45 -XX:MinHeapFreeRatio=0 -XX:MaxHeapFreeRatio=100 ^
 -Xss512k -XX:MaxDirectMemorySize=64M -XX:+AlwaysPreTouch -XX:MaxGCPauseMillis=50 -XX:+UseZGC ^
 -XX:+UseCountedLoopSafepoints -XX:+SafepointTimeout -XX:SafepointTimeoutDelay=1000 ^
--Dnetworkaddress.cache.ttl=10 -Djava.security.egd=file:/dev/./urandom -Dlog4j.skipJansi=false ^
+-Dnetworkaddress.cache.ttl=10 -Djava.security.egd=file:/dev/./urandom ^
+-Dfile.encoding=utf-8 -Dlog4j.skipJansi=false ^
 %JAR_FILE% ^
 deviceName=%DEVICE_NAME% ^
 srcProto=%SRC_PROTO% distProto=%DIST_PROTO% ^

@@ -15,7 +15,13 @@ tasks.compileJava {
     options.encoding = "utf-8"
 }
 
+tasks.create<Copy>("copy-start-script") {
+    from("${rootDir}/start-redirect.bat")
+    into("${buildDir}/libs")
+}
+
 tasks.shadowJar {
+    dependsOn(tasks.named("copy-start-script"))
     archiveClassifier.set("")
     manifest {
         attributes(
