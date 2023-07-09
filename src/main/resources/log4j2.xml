@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Appenders>
+        <Console name="SysOut" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss}][%level][%t]:} %msg%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="./redirect.log"
+                     filePattern="./logs/$${date:yyyy-MM}/redirect-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%d{HH:mm:ss}][%level][%t]: %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="SysOut"/>
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
