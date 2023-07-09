@@ -1,37 +1,37 @@
 @echo off
 chcp 65001
 
-rem æ•°æ®åŒ…é‡å®šå‘å·¥å…·
+rem Êı¾İ°üÖØ¶¨Ïò¹¤¾ß
 rem MIT License
 rem Copyright (c) 2023 ideal-state
 rem 
-rem åŸºäº JDK 17 å¼€å‘
-rem æ”¯æŒ IPv4&IPv6 , ç›®å‰ä»…æ”¯æŒ UDP åè®®çš„ç«¯å£
-rem ä»…åœ¨æ–¹èˆŸæœåŠ¡å™¨ä¸Šè¿›è¡Œè¿‡ç®€å•æµ‹è¯•
+rem »ùÓÚ JDK 17 ¿ª·¢
+rem Ö§³Ö IPv4&IPv6 , Ä¿Ç°½öÖ§³Ö UDP Ğ­ÒéµÄ¶Ë¿Ú
+rem ½öÔÚ·½ÖÛ·şÎñÆ÷ÉÏ½øĞĞ¹ı¼òµ¥²âÊÔ
 
-rem æœ€å¤§å†…å­˜å ç”¨, 128M éƒ½å¤Ÿç”¨äº†åº”è¯¥
+rem ×î´óÄÚ´æÕ¼ÓÃ, 128M ¶¼¹»ÓÃÁËÓ¦¸Ã
 set MAX_RAM=256M
-rem JAR åŒ…æ–‡ä»¶ä½ç½®
+rem JAR °üÎÄ¼şÎ»ÖÃ
 set JAR_FILE=./redirect-1.0.0.jar
-rem è™šæ‹Ÿç½‘å¡è®¾å¤‡åç§°, ä¸å…è®¸ç©ºæ ¼!!!
+rem ĞéÄâÍø¿¨Éè±¸Ãû³Æ, ²»ÔÊĞí¿Õ¸ñ!!!
 set DEVICE_NAME=redirect
-rem è¦è½¬å‘çš„ IP çš„åœ°å€åè®®
+rem Òª×ª·¢µÄ IP µÄµØÖ·Ğ­Òé
 set SRC_PROTO=v4
-rem çœŸå®ç›®çš„åœ°çš„ IP çš„åœ°å€åè®®
+rem ÕæÊµÄ¿µÄµØµÄ IP µÄµØÖ·Ğ­Òé
 set DIST_PROTO=v6
-rem è¦è½¬å‘çš„ä¸»æœºå, åŸŸååˆ™é€‰æ‹© SRC_PROTO æ‰€é…ç½®çš„åè®®è¿›è¡Œè§£æ, IP åœ°å€åˆ™å¿…é¡»ä¸æ‰€é…ç½®çš„åè®®ç›¸ç¬¦
+rem Òª×ª·¢µÄÖ÷»úÃû, ÓòÃûÔòÑ¡Ôñ SRC_PROTO ËùÅäÖÃµÄĞ­Òé½øĞĞ½âÎö, IP µØÖ·Ôò±ØĞëÓëËùÅäÖÃµÄĞ­ÒéÏà·û
 set SRC_HOST=xxxrull.dynv6.net
-rem çœŸå®ç›®çš„åœ°çš„ä¸»æœºå, åŸŸååˆ™é€‰æ‹© DIST_PROTO æ‰€é…ç½®çš„åè®®è¿›è¡Œè§£æ, IP åœ°å€åˆ™å¿…é¡»ä¸æ‰€é…ç½®çš„åè®®ç›¸ç¬¦
+rem ÕæÊµÄ¿µÄµØµÄÖ÷»úÃû, ÓòÃûÔòÑ¡Ôñ DIST_PROTO ËùÅäÖÃµÄĞ­Òé½øĞĞ½âÎö, IP µØÖ·Ôò±ØĞëÓëËùÅäÖÃµÄĞ­ÒéÏà·û
 set DIST_HOST=xxxrull.dynv6.net
-rem æ—¥å¿—è¾“å‡ºæ•°æ®åŒ…å†…å®¹æ—¶æ‰€ç”¨çš„æ ¼å¼, true åˆ™ä¿æŒå­—èŠ‚æ•°ç»„æ ·å¼, false åˆ™è½¬ä¸ºå­—ç¬¦ä¸²æ ·å¼
+rem ÈÕÖ¾Êä³öÊı¾İ°üÄÚÈİÊ±ËùÓÃµÄ¸ñÊ½, true Ôò±£³Ö×Ö½ÚÊı×éÑùÊ½, false Ôò×ªÎª×Ö·û´®ÑùÊ½
 set LOG_RAW=false
-rem è¦è½¬å‘çš„ç«¯å£èŒƒå›´, ä¸å…è®¸ç©ºæ ¼!!! é€—å·ç”¨äºåˆ†å‰², å‡å·ç”¨äºæŒ‡å®šèŒƒå›´ç«¯å£
+rem Òª×ª·¢µÄ¶Ë¿Ú·¶Î§, ²»ÔÊĞí¿Õ¸ñ!!! ¶ººÅÓÃÓÚ·Ö¸î, ¼õºÅÓÃÓÚÖ¸¶¨·¶Î§¶Ë¿Ú
 set PORTS=27015-27016,7777-7780
 
 java -jar -Xms%MAX_RAM% -Xmx%MAX_RAM% ^
 -XX:MaxRAMPercentage=45 -XX:InitialRAMPercentage=45 -XX:MinHeapFreeRatio=0 -XX:MaxHeapFreeRatio=100 ^
 -Xss512k -XX:MaxDirectMemorySize=64M -XX:+AlwaysPreTouch -XX:MaxGCPauseMillis=50 -XX:+UseZGC ^
--XX:+UseCountedLoopSafepoints -XX:+SafepointTimeout -XX:SafepointTimeoutDelay=1000 ^
+-XX:+SafepointTimeout -XX:SafepointTimeoutDelay=1000 ^
 -Dnetworkaddress.cache.ttl=10 -Djava.security.egd=file:/dev/./urandom ^
 -Dfile.encoding=utf-8 -Dlog4j.skipJansi=false ^
 %JAR_FILE% ^
