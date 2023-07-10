@@ -1,11 +1,11 @@
-package pers.ketikai.network.redirect.server;
+package team.idealstate.network.redirect.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pers.ketikai.network.redirect.Redirect;
-import pers.ketikai.network.redirect.packet.Packet;
-import pers.ketikai.network.redirect.packet.PacketQueue;
-import pers.ketikai.network.redirect.util.BufferUtils;
+import team.idealstate.network.redirect.Redirect;
+import team.idealstate.network.redirect.packet.Packet;
+import team.idealstate.network.redirect.packet.PacketQueue;
+import team.idealstate.network.redirect.util.BufferUtils;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -52,6 +52,7 @@ public class DatagramServer {
 
         receiver = new Thread(() -> {
             final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4096);
+            boolean flag;
             int selectNow;
             Iterator<SelectionKey> keys;
             SelectionKey key;
@@ -60,11 +61,7 @@ public class DatagramServer {
             int dataLen;
             InetSocketAddress realClient;
             while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.NANOSECONDS.sleep(1000L);
-                } catch (InterruptedException e) {
-                    break;
-                }
+                flag = true;
                 selectNow = 0;
                 try {
                     selectNow = selector.selectNow();
@@ -81,6 +78,7 @@ public class DatagramServer {
                             data = (byte[]) key.attachment();
                             channel = (DatagramChannel) key.channel();
                             try {
+                                byteBuffer.clear();
                                 realClient = (InetSocketAddress) channel.receive(byteBuffer);
                                 newData = BufferUtils.copyToBytes(byteBuffer);
                                 if (data != null) {
@@ -96,12 +94,19 @@ public class DatagramServer {
                                     key.attach(null);
                                     packetQueue.send(new Packet(Packet.REAL_SERVER, realClient, newData));
                                 }
+                                flag = false;
                             } catch (ClosedChannelException ignored) {
                             } catch (IOException e) {
                                 log.error("虚拟服务端在接收数据时抛出异常", e);
                             }
-                            byteBuffer.clear();
                         }
+                    }
+                }
+                if (flag) {
+                    try {
+                        TimeUnit.NANOSECONDS.sleep(100L);
+                    } catch (InterruptedException e) {
+                        break;
                     }
                 }
             }
@@ -109,22 +114,41 @@ public class DatagramServer {
         }, "server-receiver" + ":" + suffix);
 
         sender = new Thread(() -> {
+            boolean flag;
+            Iterator<Packet> packetIterator;
             Packet packet;
             while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.NANOSECONDS.sleep(1000L);
-                } catch (InterruptedException e) {
-                    break;
+                flag = true;
+                packetIterator = packetQueue.allToRealClient();
+                while (packetIterator.hasNext()) {
+                    if ((packet = packetIterator.next()) != null) {
+                        try {
+                            Redirect.receiveInfo(log, packet.getData());
+                            channel.send(ByteBuffer.wrap(packet.getData()), packet.getAddress());
+                        } catch (ClosedChannelException ignored) {
+                        } catch (IOException e) {
+                            log.error("虚拟服务端在发送数据时抛出异常", e);
+                        }
+                        flag = false;
+                    }
+                    packetIterator.remove();
                 }
-                if ((packet = packetQueue.toRealClient()) != null) {
+                if (flag) {
                     try {
-                        Redirect.receiveInfo(log, packet.getData());
-                        channel.send(ByteBuffer.wrap(packet.getData()), packet.getAddress());
-                    } catch (ClosedChannelException ignored) {
-                    } catch (IOException e) {
-                        log.error("虚拟服务端在发送数据时抛出异常", e);
+                        TimeUnit.NANOSECONDS.sleep(100L);
+                    } catch (InterruptedException e) {
+                        break;
                     }
                 }
+//                if ((packet = packetQueue.toRealClient()) != null) {
+//                    try {
+//                        Redirect.receiveInfo(log, packet.getData());
+//                        channel.send(ByteBuffer.wrap(packet.getData()), packet.getAddress());
+//                    } catch (ClosedChannelException ignored) {
+//                    } catch (IOException e) {
+//                        log.error("虚拟服务端在发送数据时抛出异常", e);
+//                    }
+//                }
             }
             log.info("虚拟服务端发送线程已关闭");
         }, "server-sender" + ":" + suffix);

@@ -1,10 +1,10 @@
-package pers.ketikai.network.redirect.client;
+package team.idealstate.network.redirect.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pers.ketikai.network.redirect.Redirect;
-import pers.ketikai.network.redirect.packet.Packet;
-import pers.ketikai.network.redirect.packet.PacketQueue;
+import team.idealstate.network.redirect.Redirect;
+import team.idealstate.network.redirect.packet.Packet;
+import team.idealstate.network.redirect.packet.PacketQueue;
 
 import java.io.IOException;
 import java.net.Inet4Address;

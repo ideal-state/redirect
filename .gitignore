@@ -4,3 +4,4 @@ build
 out
 logs
 redirect.log
+redirect.properties

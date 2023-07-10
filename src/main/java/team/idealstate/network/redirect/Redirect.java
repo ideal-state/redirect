@@ -1,22 +1,23 @@
-package pers.ketikai.network.redirect;
+package team.idealstate.network.redirect;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pers.ketikai.network.redirect.client.DatagramClientPool;
-import pers.ketikai.network.redirect.config.Options;
-import pers.ketikai.network.redirect.packet.PacketQueue;
-import pers.ketikai.network.redirect.server.DatagramServer;
+import team.idealstate.network.redirect.client.DatagramClientPool;
+import team.idealstate.network.redirect.config.Options;
+import team.idealstate.network.redirect.packet.ConcurrentLinkedPacketQueue;
+import team.idealstate.network.redirect.packet.PacketQueue;
+import team.idealstate.network.redirect.server.DatagramServer;
+import team.idealstate.network.redirect.util.JarUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,20 +34,35 @@ public final class Redirect {
     private static final Options OPTIONS = new Options();
     private static boolean LOG_RAW = false;
 
+    private static boolean loadConfig() throws IOException {
+        final File file = new File("./redirect.properties");
+        if (file.exists()) {
+            final Properties properties = new Properties();
+            properties.load(Files.newInputStream(file.toPath()));
+            properties.forEach((key, value) -> {
+                setOption(String.valueOf(key), String.valueOf(value));
+            });
+            return true;
+        }
+        JarUtils.copy(Redirect.class, "/redirect.properties", new File("."));
+        return false;
+    }
+
     public static void main(String[] args) throws Exception {
-        final RuntimeException optionsEx = new RuntimeException("参数配置不合法, 程序退出!");
-        String[] entry;
-        for (String arg : args) {
-            entry = arg.split("=");
-            if (entry.length != 2) {
-                throw optionsEx;
-            }
-            setOption(entry[0], entry[1]);
+        if (args.length != 1 || !"start".equals(args[0])) {
+            throw new RuntimeException("启动失败, 此次操作可能是误启动, 正式的启动参数仅能有一个且必须是 start");
+        }
+
+        if (!loadConfig()) {
+            log.info("没有找到配置文件，视为首次启动，已生成默认配置。\n" +
+                    "程序将在 3s 后自动退出，请在配置修改完成后，再尝试启动！");
+            TimeUnit.SECONDS.sleep(3L);
+            return;
         }
 
         LOG_RAW = OPTIONS.isLogRaw();
         flushdns();
-        updateDevice(OPTIONS.getDeviceName(), OPTIONS.getSrcAddress());
+        updateDevice(OPTIONS.getVirtualDeviceName(), OPTIONS.getSrcAddress());
 
         final List<Redirecter> redirecters = new ArrayList<>(16);
         for (Integer port : OPTIONS.getPorts()) {
@@ -152,7 +168,7 @@ public final class Redirect {
         }
 
         private static Redirecter create(InetAddress bindAddress, InetAddress distAddress, int port) throws Exception {
-            final PacketQueue packetQueue = new PacketQueue();
+            final PacketQueue packetQueue = new ConcurrentLinkedPacketQueue();
             final InetSocketAddress bindAddress0 = new InetSocketAddress(bindAddress, port);
             final InetSocketAddress distAddress0 =
                     new InetSocketAddress(distAddress, port);

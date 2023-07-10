@@ -1,4 +1,4 @@
-package pers.ketikai.network.redirect.util;
+package team.idealstate.network.redirect.util;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;

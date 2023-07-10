@@ -1,6 +1,6 @@
-package pers.ketikai.network.redirect.config;
+package team.idealstate.network.redirect.config;
 
-import pers.ketikai.network.redirect.util.NetUtils;
+import team.idealstate.network.redirect.util.NetUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,21 +20,21 @@ import java.util.Set;
 public class Options {
 
     private final List<Integer> ports = new ArrayList<>(16);
-    private String deviceName;
+    private String virtualDeviceName;
     private String srcProto;
     private String distProto;
     private String srcHost;
     private String distHost;
     private Boolean logRaw;
 
-    public String getDeviceName() {
-        mustBeNotNull(deviceName);
-        return deviceName;
+    public String getVirtualDeviceName() {
+        mustBeNotNull(virtualDeviceName);
+        return virtualDeviceName;
     }
 
-    public void setDeviceName(String deviceName) {
-        mustBeNull(this.deviceName);
-        this.deviceName = checkDeviceName(deviceName);
+    public void setVirtualDeviceName(String virtualDeviceName) {
+        mustBeNull(this.virtualDeviceName);
+        this.virtualDeviceName = checkDeviceName(virtualDeviceName);
     }
 
     private String checkDeviceName(String deviceName) {

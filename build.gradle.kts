@@ -5,8 +5,8 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-group = "pers.ketikai.network"
-version = "1.0.2"
+group = "team.idealstate.network"
+version = "1.0.3"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -55,7 +55,7 @@ tasks.shadowJar {
     archiveClassifier.set("")
     manifest {
         attributes(
-            "Main-Class" to "pers.ketikai.network.redirect.Redirect",
+            "Main-Class" to "team.idealstate.network.redirect.Redirect",
             "Multi-Release" to true
         )
     }

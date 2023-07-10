@@ -1,10 +1,10 @@
-package pers.ketikai.network.redirect.client;
+package team.idealstate.network.redirect.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pers.ketikai.network.redirect.packet.Packet;
-import pers.ketikai.network.redirect.packet.PacketQueue;
-import pers.ketikai.network.redirect.util.BufferUtils;
+import team.idealstate.network.redirect.packet.Packet;
+import team.idealstate.network.redirect.packet.PacketQueue;
+import team.idealstate.network.redirect.util.BufferUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -94,6 +94,7 @@ public class DatagramClientPool {
 
         receiver = new Thread(() -> {
             final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4096);
+            boolean flag;
             int selectNow;
             Iterator<SelectionKey> keys;
             SelectionKey key;
@@ -102,11 +103,7 @@ public class DatagramClientPool {
             int dataLen;
             InetSocketAddress realServer0;
             while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.NANOSECONDS.sleep(1000L);
-                } catch (InterruptedException e) {
-                    break;
-                }
+                flag = true;
                 selectNow = 0;
                 try {
                     selectNow = selector.selectNow();
@@ -124,6 +121,7 @@ public class DatagramClientPool {
                             channel = (DatagramChannel) key.channel();
                             if (receiveLock.tryLock()) {
                                 try {
+                                    byteBuffer.clear();
                                     realServer0 = (InetSocketAddress) channel.receive(byteBuffer);
                                     newData = BufferUtils.copyToBytes(byteBuffer);
                                     if (data != null) {
@@ -140,6 +138,7 @@ public class DatagramClientPool {
                                         packetQueue.send(new Packet(Packet.REAL_CLIENT,
                                                 clients0.get(channel).getRealClient(), newData));
                                     }
+                                    flag = false;
                                 } catch (ClosedChannelException ignored) {
                                 } catch (IOException e) {
                                     log.error("一个虚拟客户端在接收数据时抛出异常", e);
@@ -147,8 +146,14 @@ public class DatagramClientPool {
                                     receiveLock.unlock();
                                 }
                             }
-                            byteBuffer.clear();
                         }
+                    }
+                }
+                if (flag) {
+                    try {
+                        TimeUnit.NANOSECONDS.sleep(100L);
+                    } catch (InterruptedException e) {
+                        break;
                     }
                 }
             }
@@ -156,31 +161,61 @@ public class DatagramClientPool {
         }, "client-pool-receiver" + ":" + suffix);
 
         this.sender = new Thread(() -> {
+            boolean flag;
+            Iterator<Packet> packetIterator;
             Packet packet;
             InetSocketAddress realClient;
             DatagramClient client;
             while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.NANOSECONDS.sleep(1000L);
-                } catch (InterruptedException e) {
-                    break;
-                }
-                if ((packet = packetQueue.toRealServer()) != null) {
-                    realClient = packet.getAddress();
-                    if (sendLock.tryLock()) {
-                        try {
-                            if ((client = clients.get(realClient)) == null) {
-                                clients.put(realClient, (client = new DatagramClient(realServer, realClient, packetQueue, selector)));
-                                clients0.put(client.getChannel(), client);
+                flag = true;
+                if (sendLock.tryLock()) {
+                    try {
+                        packetIterator = packetQueue.allToRealServer();
+                        while (packetIterator.hasNext()) {
+                            if ((packet = packetIterator.next()) != null) {
+                                try {
+                                    realClient = packet.getAddress();
+                                    if ((client = clients.get(realClient)) == null) {
+                                        clients.put(realClient, (client = new DatagramClient(realServer, realClient, packetQueue, selector)));
+                                        clients0.put(client.getChannel(), client);
+                                    }
+                                    client.send(packet);
+                                    flag = false;
+                                } catch (IOException e) {
+                                    log.error("新建虚拟客户端时抛出异常", e);
+                                }
                             }
-                            client.send(packet);
-                        } catch (IOException e) {
-                            log.error("新建虚拟客户端时抛出异常", e);
-                        } finally {
-                            sendLock.unlock();
+                            packetIterator.remove();
                         }
+                    } catch (Exception e) {
+                        log.error("虚拟客户端池发送数据时抛出异常", e);
+                    } finally {
+                        sendLock.unlock();
                     }
                 }
+                if (flag) {
+                    try {
+                        TimeUnit.NANOSECONDS.sleep(100L);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                }
+//                if ((packet = packetQueue.toRealServer()) != null) {
+//                    realClient = packet.getAddress();
+//                    if (sendLock.tryLock()) {
+//                        try {
+//                            if ((client = clients.get(realClient)) == null) {
+//                                clients.put(realClient, (client = new DatagramClient(realServer, realClient, packetQueue, selector)));
+//                                clients0.put(client.getChannel(), client);
+//                            }
+//                            client.send(packet);
+//                        } catch (IOException e) {
+//                            log.error("新建虚拟客户端时抛出异常", e);
+//                        } finally {
+//                            sendLock.unlock();
+//                        }
+//                    }
+//                }
             }
             log.info("虚拟客户端池发送线程已关闭");
         }, "client-pool-sender" + ":" + suffix);

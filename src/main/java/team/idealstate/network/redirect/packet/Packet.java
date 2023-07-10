@@ -1,4 +1,4 @@
-package pers.ketikai.network.redirect.packet;
+package team.idealstate.network.redirect.packet;
 
 import java.net.InetSocketAddress;
 
