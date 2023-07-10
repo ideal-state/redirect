@@ -4,15 +4,10 @@ on:
   push:
     branches:
       - master
-#   pull_request:
-#     branches:
-#       - master
-#     types:
-#       - closed
 
 jobs:
   release:
-    if: github.event_name == 'push' && github.event.pull_request.merged == false
+    if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
