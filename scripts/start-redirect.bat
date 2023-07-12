@@ -12,7 +12,7 @@ rem 仅在方舟服务器上进行过简单测试
 rem 最大内存占用
 set MAX_RAM=256M
 rem JAR 包文件位置
-set JAR_FILE=./redirect-1.0.3.jar
+set JAR_FILE=./redirect-1.0.4.jar
 
 rem 可用的最大直接内存
 set MAX_DIRECT_RAM=64M
