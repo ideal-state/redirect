@@ -1,5 +1,7 @@
 package team.idealstate.network.redirect;
 
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.idealstate.network.redirect.client.DatagramClientPool;
@@ -10,7 +12,9 @@ import team.idealstate.network.redirect.server.DatagramServer;
 import team.idealstate.network.redirect.util.JarUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
@@ -30,15 +34,38 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Redirect {
 
+    static {
+        loadLog4j2XML();
+    }
+
     private static final Logger log = LoggerFactory.getLogger(Redirect.class);
     private static final Options OPTIONS = new Options();
     private static boolean LOG_RAW = false;
+
+    private static void loadLog4j2XML() {
+        final File file = new File("./log4j2.xml");
+        try {
+            if (!file.exists()) {
+                JarUtils.copy(Redirect.class, "/log4j2.xml", new File("."));
+            }
+            Configurator.initialize(
+                    null,
+                    new ConfigurationSource(
+                            new FileInputStream("./log4j2.xml")
+                    )
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static boolean loadConfig() throws IOException {
         final File file = new File("./redirect.properties");
         if (file.exists()) {
             final Properties properties = new Properties();
-            properties.load(Files.newInputStream(file.toPath()));
+            try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+                properties.load(inputStream);
+            }
             properties.forEach((key, value) -> {
                 setOption(String.valueOf(key), String.valueOf(value));
             });

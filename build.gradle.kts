@@ -2,11 +2,12 @@ import java.nio.charset.Charset
 
 plugins {
     id("java")
+//    id("java-library")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "team.idealstate.network"
-version = "1.0.3"
+version = "1.0.4"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -71,5 +72,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
+    val log4jVersion = "2.20.0"
+    implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}")
 }

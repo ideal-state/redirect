@@ -11,7 +11,7 @@
 # 最大内存占用
 MAX_RAM=256M
 # JAR 包文件位置
-JAR_FILE=./redirect-1.0.3.jar
+JAR_FILE=./redirect-1.0.4.jar
 
 # 可用的最大直接内存
 MAX_DIRECT_RAM=64M
