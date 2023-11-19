@@ -71,4 +71,4 @@ jobs:
           generateReleaseNotes: true
           tag: ${{ env.project_version }}
           artifacts: "build/libs/*"
-          token: ${{ secrets.WORKFLOW }}
+          token: ${{ secrets.TOKEN }}
